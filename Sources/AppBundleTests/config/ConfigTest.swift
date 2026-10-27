@@ -179,6 +179,13 @@ final class ConfigTest: XCTestCase {
         assertEquals(result.config.persistentWorkspaces.sorted(), ["1", "2", "3", "4"])
     }
 
+    func testWorkspaceOrder() {
+        let result = parseConfig("workspace-order = ['web', 'code', '1']")
+        assertEquals(result.errors, [])
+        assertEquals(result.config.workspaceOrder, ["web", "code", "1"])
+        assertEquals(parseConfig("workspace-order = ['1', '1']").errors.count, 1)
+    }
+
     func testUnknownTopLevelKeyParseError() {
         let result = parseConfig(
             """

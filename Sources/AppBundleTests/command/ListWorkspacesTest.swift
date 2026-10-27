@@ -31,6 +31,15 @@ final class ListWorkspacesTest: XCTestCase {
         assertEquals(result.stdout, ["a", "b", "setUpWorkspacesForTests"])
     }
 
+    func testRunAllWithCustomOrder() async {
+        config.workspaceOrder = ["b", "setUpWorkspacesForTests"]
+        TestWindow.new(id: 1, parent: Workspace.get(byName: "a").rootTilingContainer)
+        TestWindow.new(id: 2, parent: Workspace.get(byName: "b").rootTilingContainer)
+        TestWindow.new(id: 3, parent: Workspace.get(byName: "c").rootTilingContainer)
+        let result = await parseCommand("list-workspaces --all").cmdOrDie.run(.defaultEnv, .emptyStdin)
+        assertEquals(result.stdout, ["b", "setUpWorkspacesForTests", "a", "c"])
+    }
+
     func testRunVisible() async {
         TestWindow.new(id: 1, parent: Workspace.get(byName: "a").rootTilingContainer)
         let result = await parseCommand("list-workspaces --monitor all --visible").cmdOrDie.run(.defaultEnv, .emptyStdin)

@@ -44,7 +44,7 @@ final class Workspace: TreeNode, NonLeafTreeNodeObject, Hashable, Comparable {
     }
 
     @MainActor static var all: [Workspace] {
-        workspaceNameToWorkspace.values.sorted()
+        workspaceNameToWorkspace.values.sortedByConfigOrder()
     }
 
     @MainActor static func get(byName name: String) -> Workspace {
@@ -99,6 +99,18 @@ final class Workspace: TreeNode, NonLeafTreeNodeObject, Hashable, Comparable {
     }
 
     nonisolated func hash(into hasher: inout Hasher) { hasher.combine(name) }
+}
+
+extension Sequence<Workspace> {
+    /// Workspaces listed in `workspace-order` come first (in the listed order), the rest are sorted by name
+    @MainActor
+    func sortedByConfigOrder() -> [Workspace] {
+        sorted { lhs, rhs in
+            let l = config.workspaceOrder.firstIndex(of: lhs.name) ?? Int.max
+            let r = config.workspaceOrder.firstIndex(of: rhs.name) ?? Int.max
+            return l != r ? l < r : lhs < rhs
+        }
+    }
 }
 
 extension Workspace {
